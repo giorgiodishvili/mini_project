@@ -1,0 +1,11 @@
+aws:
+  accessKeyId: accessKeyId
+  secretKey: secretKey
+  region: region
+
+  dynamoDb:
+    classnameinlowercase: table-name-in aws
+
+spring:
+  profiles:
+    active: config, secret
