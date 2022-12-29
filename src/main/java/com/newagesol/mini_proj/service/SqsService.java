@@ -1,23 +1,26 @@
 package com.newagesol.mini_proj.service;
 
-import com.newagesol.mini_proj.annotations.SqsStream;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jashmore.sqs.argument.payload.Payload;
+import com.jashmore.sqs.spring.container.basic.QueueListener;
 import com.newagesol.mini_proj.entity.Customer;
 import com.newagesol.mini_proj.facade.SqsClientFacade;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Service
+@Component
 @Slf4j
 public class SqsService {
 
     private final SqsClientFacade<Customer> sqsClient;
+    private final ObjectMapper mapper;
 
-    public SqsService(SqsClientFacade sqsClient) {
+    public SqsService(SqsClientFacade sqsClient, ObjectMapper mapper) {
         this.sqsClient = sqsClient;
+        this.mapper = mapper;
         sendBatchMessages();
     }
 
@@ -31,25 +34,9 @@ public class SqsService {
         sqsClient.sendMessage(customer2, Customer.class);
     }
 
-    @Scheduled(fixedDelayString = "${aws.sqs.fixed-poll-rate}")
-    public void messageInBatchListener() {
-        List<Customer> customerMessages = sqsClient.receiveMessages(Customer.class);
-
-        log.info("Received {} message(s)", customerMessages.size());
-
+    @QueueListener(value = "${aws.sqs.urls.customer}")
+    public void messageInBatchListener(@Payload final Customer customerMessages) {
         System.out.println("Message " + customerMessages);
-
-//        if (!customerEntities.isEmpty()) {
-//            log.info("Saving {} purchase transaction(s)", customerEntities.size());
-//            purchaseTransactionRepository.saveAll(customerEntities);
-//
-//            List<Message> processed = messages.stream()
-//                    .filter(m -> Boolean.parseBoolean(m.getAttributes().get("processed"))).toList();
-//
-//            deleteMessagesBatch(processed);
-//
-//            //processed.forEach(this::deleteMessage);
-//        }
     }
 
 }

@@ -69,6 +69,11 @@
             <version>1.12.369</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.jashmore</groupId>
+            <artifactId>java-dynamic-sqs-listener-spring-starter</artifactId>
+            <version>5.0.0</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.testcontainers</groupId>-->
 <!--            <artifactId>postgresql</artifactId>-->

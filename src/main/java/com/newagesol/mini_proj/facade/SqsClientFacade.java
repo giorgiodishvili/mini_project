@@ -3,9 +3,10 @@ package com.newagesol.mini_proj.facade;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.newagesol.mini_proj.configuration.AWSConfigProperties;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequest;
@@ -20,19 +21,20 @@ import java.util.stream.Stream;
 @Slf4j
 public class SqsClientFacade<T> {
 
-    private final SqsClient sqsClient;
+    private final SqsAsyncClient sqsClient;
     private final AWSConfigProperties awsConfigProperties;
     private final ObjectMapper mapper;
 
-    public SqsClientFacade(SqsClient sqsClient, AWSConfigProperties awsConfigProperties, ObjectMapper mapper) {
+    public SqsClientFacade(SqsAsyncClient sqsClient, AWSConfigProperties awsConfigProperties, ObjectMapper mapper) {
         this.sqsClient = sqsClient;
         this.awsConfigProperties = awsConfigProperties;
         this.mapper = mapper;
     }
 
+    @SneakyThrows
     public List<T> receiveMessages(Class<T> expectedClass) {
 
-        List<Message> messages = sqsClient.receiveMessage(constructReceiveMessageRequest(expectedClass)).messages();
+        List<Message> messages = sqsClient.receiveMessage(constructReceiveMessageRequest(expectedClass)).get().messages();
 
         Stream<Message> messageStream = awsConfigProperties.getSqs().parallelProcessing() ? messages.stream().parallel() : messages.stream();
 
@@ -42,9 +44,9 @@ public class SqsClientFacade<T> {
                 .toList();
     }
 
-    public boolean sendMessage(T content, Class<T> expectedClass) {
+    public void sendMessage(T content, Class<T> expectedClass) {
         try {
-            return sqsClient.sendMessageBatch(constructSendMessageBatchRequest(content, expectedClass)).hasSuccessful();
+            sqsClient.sendMessageBatch(constructSendMessageBatchRequest(content, expectedClass));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Could not parse message toString: ", e);
         }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
@@ -12,8 +13,8 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 public class SQSConfig {
 
     @Bean
-    public SqsClient amazonSQSClient(AWSConfigProperties awsConfigProperties) {
-        return SqsClient.builder()
+    public SqsAsyncClient amazonSQSClient(AWSConfigProperties awsConfigProperties) {
+        return SqsAsyncClient.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(awsConfigProperties.getAccessKeyId(), awsConfigProperties.getSecretKey())))
                 .region(Region.of(awsConfigProperties.getRegion()))
                 .build();
