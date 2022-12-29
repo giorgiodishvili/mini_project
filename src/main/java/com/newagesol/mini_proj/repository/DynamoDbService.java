@@ -1,11 +1,12 @@
 package com.newagesol.mini_proj.repository;
 
 import com.newagesol.mini_proj.entity.Customer;
+import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,10 +15,10 @@ import java.util.List;
 @Slf4j
 public class DynamoDbService {
 
-    private final DynamoDbTable<Customer> customerTable;
+    private final DynamoDbTemplate dynamoDbTemplate;
 
-    public DynamoDbService(DynamoDbTable<Customer> customerTable) {
-        this.customerTable = customerTable;
+    public DynamoDbService(DynamoDbTemplate dynamoDbTemplate) {
+        this.dynamoDbTemplate = dynamoDbTemplate;
     }
 
     @PostConstruct
@@ -30,14 +31,14 @@ public class DynamoDbService {
     }
 
     public void save(Customer customer) {
-        customerTable.putItem(customer);
+        dynamoDbTemplate.save(customer);
     }
 
     public Customer findById(String id) {
-        return customerTable.getItem(Key.builder().partitionValue(id).build());
+        return dynamoDbTemplate.load(Key.builder().partitionValue(id).build(), Customer.class);
     }
 
     public List<Customer> findAll() {
-        return customerTable.scan().items().stream().toList();
+        return dynamoDbTemplate.scan(ScanEnhancedRequest.builder().limit(100).build(), Customer.class).items().stream().toList();
     }
 }
