@@ -2,9 +2,14 @@ aws:
   accessKeyId: accessKeyId
   secretKey: secretKey
   region: region
+  sqs:
+    batch-size: 10
+    poll-wait-time-sec: 20
+    fixed-poll-rate: 3000 # 3 second
+    parallel-processing: false
 
   dynamoDb:
-    classnameinlowercase: table-name-in aws
+    classnameinlowercase: table-name-in-aws
 
 spring:
   profiles:

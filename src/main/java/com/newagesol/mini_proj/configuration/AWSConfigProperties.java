@@ -16,5 +16,6 @@ public class AWSConfigProperties {
     private String accessKeyId;
     private String secretKey;
     private String region;
+    private SQSConfigProperties sqs;
     private Map<String, String> dynamoDb;
 }

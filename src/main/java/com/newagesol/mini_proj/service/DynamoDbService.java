@@ -1,4 +1,4 @@
-package com.newagesol.mini_proj.repository;
+package com.newagesol.mini_proj.service;
 
 import com.newagesol.mini_proj.entity.Customer;
 import jakarta.annotation.PostConstruct;

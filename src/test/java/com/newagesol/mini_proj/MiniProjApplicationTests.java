@@ -1,7 +1,7 @@
 package com.newagesol.mini_proj;
 
 import com.newagesol.mini_proj.entity.Customer;
-import com.newagesol.mini_proj.repository.DynamoDbService;
+import com.newagesol.mini_proj.service.DynamoDbService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
