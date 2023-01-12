@@ -1,23 +1,28 @@
 package com.newagesol.mini_proj.service;
 
-import com.newagesol.mini_proj.annotations.SqsStream;
 import com.newagesol.mini_proj.entity.Customer;
+import com.newagesol.mini_proj.entity.Player;
 import com.newagesol.mini_proj.facade.SqsClientFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.utils.Pair;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Slf4j
 public class SqsService {
 
     private final SqsClientFacade<Customer> sqsClient;
+    private final SqsClientFacade<Player> playerSqsClient;
 
-    public SqsService(SqsClientFacade sqsClient) {
+    public SqsService(SqsClientFacade sqsClient, SqsClientFacade<Player> playerSqsClient) {
         this.sqsClient = sqsClient;
+        this.playerSqsClient = playerSqsClient;
         sendBatchMessages();
     }
 
@@ -29,27 +34,21 @@ public class SqsService {
 
         sqsClient.sendMessage(customer1, Customer.class);
         sqsClient.sendMessage(customer2, Customer.class);
+
+        playerSqsClient.sendMessage(new Player(), Player.class);
     }
 
     @Scheduled(fixedDelayString = "${aws.sqs.fixed-poll-rate}")
     public void messageInBatchListener() {
-        List<Customer> customerMessages = sqsClient.receiveMessages(Customer.class);
+        Function<Pair<Message, Customer>, Message> function = it -> it.left();
 
-        log.info("Received {} message(s)", customerMessages.size());
-
-        System.out.println("Message " + customerMessages);
-
-//        if (!customerEntities.isEmpty()) {
-//            log.info("Saving {} purchase transaction(s)", customerEntities.size());
-//            purchaseTransactionRepository.saveAll(customerEntities);
+        sqsClient.receiveMessages(Customer.class, function);
 //
-//            List<Message> processed = messages.stream()
-//                    .filter(m -> Boolean.parseBoolean(m.getAttributes().get("processed"))).toList();
-//
-//            deleteMessagesBatch(processed);
-//
-//            //processed.forEach(this::deleteMessage);
-//        }
+//        log.info("Received {} message(s)", customerMessages.size());
+////        sadasda
+//        System.out.println("Message " + customerMessages);
+//        System.out.println("Message  PLAYER " + playerSqsClient.receiveMessages(Player.class));
     }
+
 
 }
